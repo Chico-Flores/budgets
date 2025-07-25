@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Lightning Bolt Sales Dashboard ⚡</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ LIGHTNING BOLT SALES DASHBOARD ⚡</h1>
+            <p class="subtitle">🎯 Live Daily Goal Calculator! 😄⚡</p>
+            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+                ⏰ Loading fresh data... ⚡
+            </div>
+        </header>
+
+        <div class="demo-notice" style="background: linear-gradient(135deg, #fff9e6 0%, #ffeecc 100%); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3); text-align: center;">
+            <h3 style="color: #0066cc; margin-bottom: 15px;">⚡ Live Demo Mode ⚡</h3>
+            <p style="color: #0066cc; margin-bottom: 20px; font-weight: 500;">This is a static demo version. For full functionality with file uploads and backend processing, please run the application locally.</p>
+            <button id="loadDemoData" class="lightning-calculate">⚡ Load Demo Data ⚡</button>
+        </div>
+
+        <div class="upload-section" style="opacity: 0.5;">
+            <div class="upload-card lightning-card">
+                <h3>⚡ Step 1: Upload Team Budget CSV</h3>
+                <div class="template-link">
+                    <a href="budget_template.csv" download="team_budget_template.csv" class="template-btn lightning-btn">
+                        📄 Download Budget Template ⚡
+                    </a>
+                    <span class="template-note">Download and customize this template with your team data</span>
+                </div>
+                <div class="file-upload">
+                    <input type="file" id="csvFile" accept=".csv" disabled />
+                    <label for="csvFile" class="upload-btn lightning-upload">Choose CSV File ⚡ (Demo Mode)</label>
+                    <span class="file-name" id="csvFileName">Demo mode - file uploads disabled</span>
+                </div>
+            </div>
+
+            <div class="upload-card lightning-card">
+                <h3>⚡ Step 2: Upload CRM Performance Report</h3>
+                <div class="file-upload">
+                    <input type="file" id="xlsxFile" accept=".xlsx,.xls" disabled />
+                    <label for="xlsxFile" class="upload-btn lightning-upload">Choose XLSX File ⚡ (Demo Mode)</label>
+                    <span class="file-name" id="xlsxFileName">Demo mode - file uploads disabled</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>⚡ Team Performance Overview 📊</h2>
+            <div class="results-info lightning-info">
+                <p><strong>⏰ Current Date:</strong> <span id="currentDate"></span></p>
+                <p><strong>📅 Remaining Work Days:</strong> <span id="remainingDays">12</span></p>
+            </div>
+            
+            <div class="leaderboard-section">
+                <h3>🎯 Individual Progress Leaderboard ⚡</h3>
+                <div class="table-container">
+                    <table id="resultsTable" class="lightning-table">
+                        <thead>
+                            <tr>
+                                <th>⚡ Agent</th>
+                                <th>🌍 Team</th>
+                                <th>🎯 Current Goal</th>
+                                <th>💰 Total w/PDP</th>
+                                <th>📊 Progress</th>
+                                <th>⏰ Remaining</th>
+                                <th>⚡ Daily Goal</th>
+                                <th>🏆 Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Demo data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="export-section">
+                <button id="exportPdfBtn" class="export-btn lightning-export" disabled>📄 Export PDF Report ⚡ (Demo)</button>
+                <button id="exportCsvBtn" class="export-btn lightning-export" disabled>📊 Export CSV Data ⚡ (Demo)</button>
+            </div>
+        </div>
+
+        <div class="error-section" id="errorSection" style="display: none;">
+            <div class="error-message lightning-error" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script src="script-static.js"></script>
+</body>
+</html> 
