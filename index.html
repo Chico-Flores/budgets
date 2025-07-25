@@ -3,118 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Lightning Bolt Sales Dashboard ⚡</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- SheetJS Library for client-side file processing -->
+    <title>⚡ Lightning Sales Goal Calculator</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* Minimal styling - no conflicts */
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #001122 0%, #0066cc 100%);
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+        }
+        h1 { 
+            color: #0066cc; 
+            text-align: center; 
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #f0f8ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid #0066cc;
+        }
+        .file-input {
+            padding: 15px;
+            border: 3px solid #0066cc;
+            border-radius: 10px;
+            background: white;
+            color: #0066cc;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .file-input:hover {
+            background: #e6f3ff;
+            border-color: #ffcc00;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .calculate-btn {
+            background: linear-gradient(45deg, #00cc66, #00ff80);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+        }
+        .calculate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .calculate-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,200,100,0.3);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #0066cc;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #0066cc;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background: #f0f8ff;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>⚡ LIGHTNING BOLT SALES DASHBOARD ⚡</h1>
-            <p class="subtitle">🎯 Live Daily Goal Calculator! 😄⚡</p>
-            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
-                ⏰ Loading fresh data... ⚡
-            </div>
-        </header>
-
-        <div class="success-notice" style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(0,200,100,0.3); text-align: center;">
-            <h3 style="color: #0066cc; margin-bottom: 15px;">⚡ FULLY FUNCTIONAL ONLINE VERSION! ⚡</h3>
-            <p style="color: #0066cc; margin-bottom: 20px; font-weight: 500;">Upload your real CSV and XLSX files! All processing happens in your browser - completely secure and private.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <span style="background: #00cc66; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ Real File Processing</span>
-                <span style="background: #0066cc; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ CSV Export</span>
-                <span style="background: #ffcc00; color: #0066cc; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ 100% Browser-Based</span>
-            </div>
+        <h1>⚡ LIGHTNING BOLT SALES DASHBOARD ⚡</h1>
+        
+        <div class="section">
+            <h3>⚡ Step 1: Upload Team Budget CSV</h3>
+            <input type="file" id="csvFile" accept=".csv" class="file-input" placeholder="Click to select CSV file">
+            <div id="csvStatus" class="status" style="color: #0066cc;">Waiting for CSV file...</div>
         </div>
 
-        <div class="refresh-section">
-            <button id="refreshBtn" class="refresh-btn">
-                🔄 Refresh Data ⚡
-            </button>
+        <div class="section">
+            <h3>⚡ Step 2: Upload CRM Performance Report</h3>
+            <input type="file" id="xlsxFile" accept=".xlsx,.xls" class="file-input" placeholder="Click to select XLSX file">
+            <div id="xlsxStatus" class="status" style="color: #0066cc;">Waiting for XLSX file...</div>
         </div>
 
-        <div class="upload-section">
-            <div class="upload-card lightning-card">
-                <h3>⚡ Step 1: Upload Team Budget CSV</h3>
-                <div class="template-link">
-                    <a href="budget_template.csv" download="team_budget_template.csv" class="template-btn lightning-btn">
-                        📄 Download Budget Template ⚡
-                    </a>
-                    <span class="template-note">Download and customize this template with your team data</span>
-                </div>
-                <div class="file-upload">
-                    <input type="file" id="csvFile" accept=".csv" />
-                    <label for="csvFile" class="upload-btn lightning-upload">Choose CSV File ⚡</label>
-                    <span class="file-name" id="csvFileName">No file selected</span>
-                </div>
-            </div>
+        <button id="calculateBtn" class="calculate-btn" disabled>
+            ⚡ Calculate Lightning Goals ⚡
+        </button>
+        <div id="calculateStatus" style="text-align: center; margin: 15px 0; color: #0066cc; font-weight: bold;">Upload both files first...</div>
 
-            <div class="upload-card lightning-card">
-                <h3>⚡ Step 2: Upload CRM Performance Report</h3>
-                <div class="file-upload">
-                    <input type="file" id="xlsxFile" accept=".xlsx,.xls" />
-                    <label for="xlsxFile" class="upload-btn lightning-upload">Choose XLSX File ⚡</label>
-                    <span class="file-name" id="xlsxFileName">No file selected</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="calculate-section">
-            <button id="calculateBtn" class="calculate-btn lightning-calculate" disabled>
-                ⚡ Calculate Lightning Goals ⚡
-            </button>
-        </div>
-
-        <div class="results-section" id="resultsSection" style="display: none;">
-            <h2>⚡ Team Performance Overview 📊</h2>
-            <div class="results-info lightning-info">
+        <div id="resultsSection" style="display: none;">
+            <h2 style="color: #0066cc; text-align: center;">⚡ Team Performance Overview 📊</h2>
+            <div style="background: #e6f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
                 <p><strong>⏰ Current Date:</strong> <span id="currentDate"></span></p>
                 <p><strong>📅 Remaining Work Days:</strong> <span id="remainingDays">12</span></p>
             </div>
             
-            <div class="leaderboard-section">
-                <h3>🎯 Individual Progress Leaderboard ⚡</h3>
-                <div class="table-container">
-                    <table id="resultsTable" class="lightning-table">
-                        <thead>
-                            <tr>
-                                <th>⚡ Agent</th>
-                                <th>🌍 Team</th>
-                                <th>🎯 Current Goal</th>
-                                <th>💰 Total w/PDP</th>
-                                <th>📊 Progress</th>
-                                <th>⏰ Remaining</th>
-                                <th>⚡ Daily Goal</th>
-                                <th>🏆 Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody">
-                            <!-- Results will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <h3 style="color: #0066cc;">🎯 Individual Progress Leaderboard ⚡</h3>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>⚡ Agent</th>
+                        <th>🌍 Team</th>
+                        <th>🎯 Current Goal</th>
+                        <th>💰 Total w/PDP</th>
+                        <th>📊 Progress</th>
+                        <th>⏰ Remaining</th>
+                        <th>⚡ Daily Goal</th>
+                        <th>🏆 Status</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results will be populated here -->
+                </tbody>
+            </table>
 
-            <div class="export-section">
-                <button id="exportPdfBtn" class="export-btn lightning-export">📄 Export PDF Report ⚡</button>
-                <button id="exportCsvBtn" class="export-btn lightning-export">📊 Export CSV Data ⚡</button>
-            </div>
-        </div>
-
-        <div class="error-section" id="errorSection" style="display: none;">
-            <div class="error-message lightning-error" id="errorMessage"></div>
-        </div>
-
-        <div class="info-section" style="background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%); padding: 20px; border-radius: 15px; margin-top: 30px; border: 2px solid rgba(0,100,200,0.2);">
-            <h4 style="color: #0066cc; margin-bottom: 15px;">🔒 Privacy & Security</h4>
-            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• All file processing happens in your browser</p>
-            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• No data is sent to any server</p>
-            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• Your sensitive sales data stays completely private</p>
-            <p style="color: #0066cc; font-weight: 500;">• Powered by <a href="https://sheetjs.com" target="_blank" style="color: #ffcc00;">SheetJS ⚡</a></p>
+            <button onclick="exportCSV()" style="background: #ffcc00; color: #0066cc; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 20px auto; display: block;">
+                📊 Export CSV Data ⚡
+            </button>
         </div>
     </div>
 
-    <script src="script-web.js"></script>
+    <script>
+        console.log('🚀 Lightning Dashboard starting...');
+        
+        let csvData = null;
+        let xlsxData = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded, setting up event listeners...');
+            
+            const csvFileInput = document.getElementById('csvFile');
+            const xlsxFileInput = document.getElementById('xlsxFile');
+            const calculateBtn = document.getElementById('calculateBtn');
+            
+            console.log(`Elements found: CSV=${!!csvFileInput}, XLSX=${!!xlsxFileInput}, Button=${!!calculateBtn}`);
+            
+            // Add click listeners to test
+            csvFileInput.addEventListener('click', function() {
+                console.log('📄 CSV input clicked!');
+            });
+            
+            xlsxFileInput.addEventListener('click', function() {
+                console.log('📊 XLSX input clicked!');
+            });
+            
+            csvFileInput.addEventListener('change', handleCsvUpload);
+            xlsxFileInput.addEventListener('change', handleXlsxUpload);
+            calculateBtn.addEventListener('click', calculateDailyGoals);
+            
+            updateCurrentDate();
+            console.log('🎉 All event listeners ready! File inputs should be clickable...');
+        });
+        
+        async function handleCsvUpload(event) {
+            console.log('📄 CSV upload triggered!', event);
+            const file = event.target.files[0];
+            const statusDiv = document.getElementById('csvStatus');
+            
+            if (!file) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">No file selected</span>';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML = '<span style="color: #0066cc;">📁 Processing: ' + file.name + '</span>';
+                statusDiv.style.background = '#fff3cd';
+                
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                csvData = XLSX.utils.sheet_to_json(worksheet);
+                
+                statusDiv.innerHTML = '<span style="color: #00cc66;">🎉 CSV loaded! Found ' + csvData.length + ' rows</span>';
+                statusDiv.style.background = '#d4edda';
+                checkFilesReady();
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">❌ Error: ' + error.message + '</span>';
+                statusDiv.style.background = '#f8d7da';
+                console.error('CSV Error:', error);
+            }
+        }
+        
+        async function handleXlsxUpload(event) {
+            console.log('📊 XLSX upload triggered!', event);
+            const file = event.target.files[0];
+            const statusDiv = document.getElementById('xlsxStatus');
+            
+            if (!file) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">No file selected</span>';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML = '<span style="color: #0066cc;">📁 Processing: ' + file.name + '</span>';
+                statusDiv.style.background = '#fff3cd';
+                
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data);
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rawData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                xlsxData = [];
+                let dataStartRow = 0;
+                for (let i = 0; i < rawData.length; i++) {
+                    if (rawData[i][0] && rawData[i][0].toString().toLowerCase().includes('collector')) {
+                        dataStartRow = i + 1;
+                        break;
+                    }
+                }
+                
+                for (let i = dataStartRow; i < rawData.length; i++) {
+                    const row = rawData[i];
+                    if (!row[0] || row[0] === '') continue;
+                    
+                    xlsxData.push({
+                        agent: row[0].toString().toUpperCase().trim(),
+                        total_with_pdp: parseFloat(row[11]) || 0
+                    });
+                }
+                
+                statusDiv.innerHTML = '<span style="color: #00cc66;">🎉 XLSX loaded! Found ' + xlsxData.length + ' agents</span>';
+                statusDiv.style.background = '#d4edda';
+                checkFilesReady();
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">❌ Error: ' + error.message + '</span>';
+                statusDiv.style.background = '#f8d7da';
+                console.error('XLSX Error:', error);
+            }
+        }
+        
+        function checkFilesReady() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const statusDiv = document.getElementById('calculateStatus');
+            
+            if (csvData && xlsxData) {
+                calculateBtn.disabled = false;
+                calculateBtn.style.background = 'linear-gradient(45deg, #00cc66, #00ff80)';
+                statusDiv.innerHTML = '<span style="color: #00cc66;">✅ Ready to calculate lightning goals!</span>';
+                console.log('🚀 Both files loaded, ready to calculate!');
+            }
+        }
+        
+        function calculateDailyGoals() {
+            console.log('⚡ Calculate button clicked!');
+            const statusDiv = document.getElementById('calculateStatus');
+            
+            if (!csvData || xlsxData.length === 0) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">❌ Please upload both files first</span>';
+                return;
+            }
+            
+            try {
+                statusDiv.innerHTML = '<span style="color: #0066cc;">⚡ Calculating lightning goals...</span>';
+                
+                const remainingDays = calculateRemainingWorkDays();
+                const results = [];
+                
+                csvData.forEach(csvRow => {
+                    const agent = csvRow.Agent?.toString().toUpperCase().trim();
+                    const team = csvRow.Team?.toString().trim() || '';
+                    const monthlyGoal1 = parseCurrency(csvRow['Monthly Goal 1'] || 0);
+                    const monthlyGoal2 = parseCurrency(csvRow['Monthly Goal 2'] || 0);
+                    
+                    if (!agent) return;
+                    
+                    const xlsxMatch = xlsxData.find(x => x.agent === agent);
+                    const totalWithPdp = xlsxMatch ? xlsxMatch.total_with_pdp : 0;
+                    
+                    let currentGoal = monthlyGoal1;
+                    let goalLevel = 1;
+                    let progressPercent = 0;
+                    let trophies = 0;
+                    
+                    if (totalWithPdp >= monthlyGoal1) {
+                        goalLevel = 2;
+                        currentGoal = monthlyGoal2;
+                        trophies = 1;
+                        progressPercent = Math.min(100, (totalWithPdp / monthlyGoal2) * 100);
+                        
+                        if (totalWithPdp >= monthlyGoal2) {
+                            trophies = 2;
+                            progressPercent = 100;
+                        }
+                    } else {
+                        progressPercent = Math.min(100, (totalWithPdp / monthlyGoal1) * 100);
+                    }
+                    
+                    const remaining = Math.max(0, currentGoal - totalWithPdp);
+                    const dailyGoal = remaining > 0 ? remaining / remainingDays : 0;
+                    
+                    results.push({
+                        agent, team, currentGoal, goalLevel, totalWithPdp,
+                        remaining, dailyGoal, progressPercent, trophies
+                    });
+                });
+                
+                displayResults(results, remainingDays);
+                statusDiv.innerHTML = '<span style="color: #00cc66;">🎉 Lightning calculations complete!</span>';
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span style="color: #dc3545;">❌ Calculation error: ' + error.message + '</span>';
+                console.error('Calculation error:', error);
+            }
+        }
+        
+        function displayResults(agents, remainingDays) {
+            document.getElementById('remainingDays').textContent = remainingDays;
+            
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            
+            const sortedAgents = agents.sort((a, b) => b.progressPercent - a.progressPercent);
+            
+            sortedAgents.forEach((agent, index) => {
+                const row = tbody.insertRow();
+                const rankIndicator = index === 0 ? '👑 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+                
+                let statusText = '⚡ On Track';
+                if (agent.remaining <= 0) {
+                    statusText = '🏆 Goal Met! ⚡';
+                } else if (agent.dailyGoal > agent.currentGoal * 0.1) {
+                    statusText = '⚡ Behind';
+                }
+                
+                const trophyIcons = '🏆'.repeat(agent.trophies) + (agent.trophies > 0 ? '⚡' : '');
+                
+                row.innerHTML = `
+                    <td><strong>${rankIndicator}${agent.agent}</strong></td>
+                    <td>🌍 ${agent.team} ⚡</td>
+                    <td>$${agent.currentGoal.toLocaleString()} (Lvl ${agent.goalLevel})</td>
+                    <td>$${agent.totalWithPdp.toLocaleString()}</td>
+                    <td>${Math.round(agent.progressPercent)}%</td>
+                    <td>$${agent.remaining.toLocaleString()}</td>
+                    <td><strong>⚡ $${agent.dailyGoal.toLocaleString()}</strong></td>
+                    <td>${statusText} ${trophyIcons}</td>
+                `;
+            });
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function parseCurrency(value) {
+            if (!value || value === '') return 0.0;
+            if (typeof value === 'string') {
+                const cleaned = value.replace(/[$,\s]/g, '');
+                return parseFloat(cleaned) || 0.0;
+            }
+            return parseFloat(value) || 0.0;
+        }
+        
+        function calculateRemainingWorkDays() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            
+            let workDays = 0;
+            for (let day = now.getDate(); day <= lastDay; day++) {
+                const date = new Date(year, month, day);
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    workDays++;
+                }
+            }
+            return Math.max(1, workDays);
+        }
+        
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+        
+        function exportCSV() {
+            try {
+                const results = document.querySelectorAll('#resultsTable tbody tr');
+                let csvContent = 'Agent,Team,Current Goal,Total w/PDP,Progress %,Remaining,Daily Goal,Status\n';
+                
+                results.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = Array.from(cells).map(cell => `"${cell.textContent.trim()}"`);
+                    csvContent += rowData.join(',') + '\n';
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'lightning-goals-data.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log('✅ CSV exported successfully!');
+                
+            } catch (error) {
+                console.error('CSV Export Error:', error);
+                alert('Error exporting CSV: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html> 
