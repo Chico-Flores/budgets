@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ Lightning Bolt Sales Dashboard ⚡</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS Library for client-side file processing -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,13 +18,23 @@
             </div>
         </header>
 
-        <div class="demo-notice" style="background: linear-gradient(135deg, #fff9e6 0%, #ffeecc 100%); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255,204,0,0.3); text-align: center;">
-            <h3 style="color: #0066cc; margin-bottom: 15px;">⚡ Live Demo Mode ⚡</h3>
-            <p style="color: #0066cc; margin-bottom: 20px; font-weight: 500;">This is a static demo version. For full functionality with file uploads and backend processing, please run the application locally.</p>
-            <button id="loadDemoData" class="lightning-calculate">⚡ Load Demo Data ⚡</button>
+        <div class="success-notice" style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(0,200,100,0.3); text-align: center;">
+            <h3 style="color: #0066cc; margin-bottom: 15px;">⚡ FULLY FUNCTIONAL ONLINE VERSION! ⚡</h3>
+            <p style="color: #0066cc; margin-bottom: 20px; font-weight: 500;">Upload your real CSV and XLSX files! All processing happens in your browser - completely secure and private.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <span style="background: #00cc66; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ Real File Processing</span>
+                <span style="background: #0066cc; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ CSV Export</span>
+                <span style="background: #ffcc00; color: #0066cc; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✅ 100% Browser-Based</span>
+            </div>
         </div>
 
-        <div class="upload-section" style="opacity: 0.5;">
+        <div class="refresh-section">
+            <button id="refreshBtn" class="refresh-btn">
+                🔄 Refresh Data ⚡
+            </button>
+        </div>
+
+        <div class="upload-section">
             <div class="upload-card lightning-card">
                 <h3>⚡ Step 1: Upload Team Budget CSV</h3>
                 <div class="template-link">
@@ -32,20 +44,26 @@
                     <span class="template-note">Download and customize this template with your team data</span>
                 </div>
                 <div class="file-upload">
-                    <input type="file" id="csvFile" accept=".csv" disabled />
-                    <label for="csvFile" class="upload-btn lightning-upload">Choose CSV File ⚡ (Demo Mode)</label>
-                    <span class="file-name" id="csvFileName">Demo mode - file uploads disabled</span>
+                    <input type="file" id="csvFile" accept=".csv" />
+                    <label for="csvFile" class="upload-btn lightning-upload">Choose CSV File ⚡</label>
+                    <span class="file-name" id="csvFileName">No file selected</span>
                 </div>
             </div>
 
             <div class="upload-card lightning-card">
                 <h3>⚡ Step 2: Upload CRM Performance Report</h3>
                 <div class="file-upload">
-                    <input type="file" id="xlsxFile" accept=".xlsx,.xls" disabled />
-                    <label for="xlsxFile" class="upload-btn lightning-upload">Choose XLSX File ⚡ (Demo Mode)</label>
-                    <span class="file-name" id="xlsxFileName">Demo mode - file uploads disabled</span>
+                    <input type="file" id="xlsxFile" accept=".xlsx,.xls" />
+                    <label for="xlsxFile" class="upload-btn lightning-upload">Choose XLSX File ⚡</label>
+                    <span class="file-name" id="xlsxFileName">No file selected</span>
                 </div>
             </div>
+        </div>
+
+        <div class="calculate-section">
+            <button id="calculateBtn" class="calculate-btn lightning-calculate" disabled>
+                ⚡ Calculate Lightning Goals ⚡
+            </button>
         </div>
 
         <div class="results-section" id="resultsSection" style="display: none;">
@@ -72,23 +90,31 @@
                             </tr>
                         </thead>
                         <tbody id="resultsBody">
-                            <!-- Demo data will be populated here -->
+                            <!-- Results will be populated here -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="export-section">
-                <button id="exportPdfBtn" class="export-btn lightning-export" disabled>📄 Export PDF Report ⚡ (Demo)</button>
-                <button id="exportCsvBtn" class="export-btn lightning-export" disabled>📊 Export CSV Data ⚡ (Demo)</button>
+                <button id="exportPdfBtn" class="export-btn lightning-export">📄 Export PDF Report ⚡</button>
+                <button id="exportCsvBtn" class="export-btn lightning-export">📊 Export CSV Data ⚡</button>
             </div>
         </div>
 
         <div class="error-section" id="errorSection" style="display: none;">
             <div class="error-message lightning-error" id="errorMessage"></div>
         </div>
+
+        <div class="info-section" style="background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%); padding: 20px; border-radius: 15px; margin-top: 30px; border: 2px solid rgba(0,100,200,0.2);">
+            <h4 style="color: #0066cc; margin-bottom: 15px;">🔒 Privacy & Security</h4>
+            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• All file processing happens in your browser</p>
+            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• No data is sent to any server</p>
+            <p style="color: #0066cc; margin-bottom: 10px; font-weight: 500;">• Your sensitive sales data stays completely private</p>
+            <p style="color: #0066cc; font-weight: 500;">• Powered by <a href="https://sheetjs.com" target="_blank" style="color: #ffcc00;">SheetJS ⚡</a></p>
+        </div>
     </div>
 
-    <script src="script-static.js"></script>
+    <script src="script-web.js"></script>
 </body>
 </html> 
