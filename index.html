@@ -230,25 +230,53 @@
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rawData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
+                console.log('🔍 DEBUG: Total rows in XLSX:', rawData.length);
+                console.log('🔍 DEBUG: First 10 rows:', rawData.slice(0, 10));
+                
                 xlsxData = [];
                 let dataStartRow = 0;
+                
+                // Look for collector header with more debug info
                 for (let i = 0; i < rawData.length; i++) {
-                    if (rawData[i][0] && rawData[i][0].toString().toLowerCase().includes('collector')) {
+                    const firstCell = rawData[i][0];
+                    console.log(`🔍 DEBUG: Row ${i}, Col A:`, firstCell);
+                    
+                    if (firstCell && firstCell.toString().toLowerCase().includes('collector')) {
+                        console.log('✅ DEBUG: Found "collector" header at row:', i);
                         dataStartRow = i + 1;
                         break;
                     }
                 }
                 
+                console.log('🔍 DEBUG: Data starts at row:', dataStartRow);
+                console.log('🔍 DEBUG: Sample data row:', rawData[dataStartRow]);
+                
                 for (let i = dataStartRow; i < rawData.length; i++) {
                     const row = rawData[i];
                     if (!row[0] || row[0] === '') continue;
                     
+                    const agent = row[0].toString().toUpperCase().trim();
+                    
+                    // Skip header rows and summary rows
+                    if (agent === 'COLLECTOR' || agent === 'TOTAL:' || agent === '[UNASSIGNED]') continue;
+                    
+                    // Parse currency values from multiple columns
+                    const colK = parseCurrencyFromCell(row[10]); // Column K (Total)
+                    const colL = parseCurrencyFromCell(row[11]); // Column L (Total w/PDP)
+                    const colM = parseCurrencyFromCell(row[12]); // Column M (Commission)
+                    
+                    // Use Column L (Total w/PDP) as primary, fallback to Column K
+                    let totalWithPdp = colL > 0 ? colL : colK;
+                    
+                    console.log(`🔍 DEBUG: Row ${i} - Agent: "${agent}", ColK: ${colK}, ColL: ${colL}, ColM: ${colM}, Using: ${totalWithPdp}`);
+                    
                     xlsxData.push({
-                        agent: row[0].toString().toUpperCase().trim(),
-                        total_with_pdp: parseFloat(row[11]) || 0
+                        agent: agent,
+                        total_with_pdp: totalWithPdp
                     });
                 }
                 
+                console.log('🔍 DEBUG: Final xlsxData:', xlsxData);
                 statusDiv.innerHTML = '<span style="color: #00cc66;">🎉 XLSX loaded! Found ' + xlsxData.length + ' agents</span>';
                 statusDiv.style.background = '#d4edda';
                 checkFilesReady();
@@ -379,6 +407,18 @@
                 return parseFloat(cleaned) || 0.0;
             }
             return parseFloat(value) || 0.0;
+        }
+        
+        function parseCurrencyFromCell(cellValue) {
+            if (!cellValue && cellValue !== 0) return 0.0;
+            if (typeof cellValue === 'number') return cellValue;
+            if (typeof cellValue === 'string') {
+                // Handle currency strings like "$722.87", "$3,763.41"
+                const cleaned = cellValue.replace(/[\$,\s]/g, '');
+                const parsed = parseFloat(cleaned);
+                return isNaN(parsed) ? 0.0 : parsed;
+            }
+            return 0.0;
         }
         
         function calculateRemainingWorkDays() {
